@@ -2,6 +2,7 @@ var gameWidth = 800;
 var gameHeight = 600;
 var scoreText;
 var overText;
+var reText;
 var fireTime = 0;
 var roids;
 var roidCollisionGroup;
@@ -39,7 +40,11 @@ function create() {
     overText = game.add.text(gameWidth/2, 400, 'Game Over', { font: "40px Arial", fill: "#ffffff", align: "center" });
     overText.anchor.setTo(0.5, 0.5);
     overText.visible = false;
+    reText = game.add.text(gameWidth/2, 430, 'Click to Restart', { font: "15px Arial", fill: "#ffffff", align: "center" });
+    reText.anchor.setTo(0.5, 0.5);
+    reText.visible = false;
     scoreText = game.add.text(32, 550, 'score: 0', { font: "20px Arial", fill: "#ffffff", align: "left" });
+    game.input.onDown.add(restart, this);
 }
 
 function addRemove(){
@@ -78,20 +83,19 @@ function addRemove(){
 
 
 function update () {
-    if (ended == true) gameOver();
     roids.forEachAlive(function(p){
         if (p.x > gameWidth + 75 || p.x < -75 || p.y > gameHeight + 75 || p.y < -75) {
             p.destroy();
         }
     });
-    if (fireTime % 100 == 0) {
+    if (fireTime % 100 == 0 && !ended) {
         scoreText.text = "Score :" + fireTime;
     }
-    if (Math.random() > 0.95) {
+    if (Math.random() > 0.95 && !ended) {
         addRemove();
     }
     fireTime++;
-    if (fireTime % 25 == 0) {
+    if (fireTime % 25 == 0 && !ended) {
         fire(game.input);
     }
 }
@@ -108,7 +112,17 @@ function fire (pointer) {
 }
 
 function gameOver () {
-    ended = true;
     overText.visible = true;
-    game.paused = true;
+    reText.visible = true;
+    ended = true;
+}
+
+function restart () {
+    if (ended) {
+        roids.removeAll(true);
+        overText.visible = false;
+        reText.visible = false;
+        ended = false;
+        fireTime = 0;
+    }
 }
